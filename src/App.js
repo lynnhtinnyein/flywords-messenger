@@ -105,44 +105,61 @@ const App = () => {
         };
 
     return (
-        <div>
-            {joinedChannels.map( (e,index) => 
-                <span key={index}>{e.name}</span>
-            )}
-            <div>
-                <button className="bg-red-200" onClick={createChannel}>Create Channel</button>
+        <div className="flex flex-col h-screen w-screen">
+
+            {/* header */}
+            <div className="flex flex-row items-center justify-center bg-white py-3 px-3 space-x-2 border-b border-b-gray-400">
+                <div className="flex flex-1">
+                    <button>
+                        <i class="fa-solid fa-bars-staggered"></i>
+                    </button>
+                </div>
+                <div className="flex flex-1 justify-center">
+                    <span>RoomID - {currentChannel}</span>
+                </div>
+                <div className="flex flex-1 justify-end">
+                    <span className="text-gray-500">2 Persons</span>
+                </div>
             </div>
 
+            {/* messages screen */}
+            <div className="flex bg-black-300 flex-col-reverse overflow-y-auto h-screen py-5">
+                <div className="flex flex-row m-2 justify-end">
+                    <div className="flex flex-col">
+                        <span className="text-xs mx-2 text-gray-600 self-end">You</span>
+                        <div className="bg-green-100 p-2 rounded-xl border border-black break-words max-w-sm">
+                            <span className="text-xs pt-3 break-words">
+                                ggjjkljdsljfjf
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-            <div>
-                <input
-                    type="text"
-                    placeholder="Enter existing channel ID..."
-                    value={joinChannelInput}
-                    onChange={(e) => setJoinChannelInput(e.target.value)}
+                <div className="flex flex-row m-2 justify-start">
+                    <div className="flex flex-col">
+                        <span className="text-xs mx-2 text-gray-600 self-start">You</span>
+                        <div className="bg-white p-2 rounded-xl border border-black break-words max-w-sm">
+                            <span className="text-xs pt-3 break-words">
+                                ggjjkljdsljfjf
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* input */}
+            <div className="flex flex-row items-center justify-center bg-white py-3 px-3 space-x-2 border-t border-t-gray-400">
+                <input 
+                    type="text" 
+                    placeholder="Message..." 
+                    className="border flex flex-1 border-black rounded-full px-5 py-2"    
                 />
-                <button className="bg-blue-200" 
-                    onClick={() => joinChannel(joinChannelInput)}>
-                    Join Channel
+               
+                <button className="bg-green-300 hover:bg-green-200 active:bg-green-100 py-2 px-3 rounded-full shadow">
+                    <i className="fa-solid fa-paper-plane text-xl mr-1"></i>
                 </button>
+            </div>
 
-            </div>
-            <div>
-                <input
-                    type="text"
-                    placeholder="Enter message..."
-                    value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                />
-                <button className="bg-green-200" onClick={sendMessage}>Send Message</button>
-            </div>
-            <div>
-                <ul>
-                    { messagesToDiplay.map( (message, index) => 
-                        <li key={index}>{message.text}</li>
-                    )}
-                </ul>
-            </div>
         </div>
     );
 };
