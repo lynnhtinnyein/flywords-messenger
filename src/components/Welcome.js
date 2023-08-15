@@ -1,53 +1,60 @@
 import { memo, useState } from "react";
 
-const Welcome = ({ createChannel, joinChannel}) => {
+const Welcome = ({ 
+    createChannel, 
+    joinChannel,
+    setCurrentUser,
+}) => {
 
+    const [textInput, setTextInput] = useState('');
     const [showJoinChannelInput, setShowJoinChannelInput] = useState(false);
-    const [joinChannelInput, setJoinChannelInput] = useState('');
+    const [joinChannelInput, setJoinChannelInput] = useState("");
 
     return (
         <div className="flex flex-1 justify-center items-center">
 
             <div className="flex flex-col justify-center items-center">
-
                 <span className="font-bold text-3xl">FlyWords Messenger</span>
 
-                <button 
-                    className="flex flex-row items-center justify-center w-full space-x-2 rounded-full bg-green-300 p-3 mt-10 hover:bg-green-400 active:bg-green-500"
-                    onClick={createChannel}
-                >
-                    <i className="fa-solid fa-plus"></i>
-                    <span>Create A Chat Room</span>
-                </button>
-
-                <button 
-                    className="flex flex-row items-center justify-center w-full space-x-2 rounded-full bg-blue-200 p-3 mt-5 hover:bg-blue-300 active:bg-blue-400"
-                    onClick={ () => setShowJoinChannelInput(!showJoinChannelInput)}
-                >
-                    <i className="fa-solid fa-link"></i>
-                    <span>Join Chat Room</span>
-                </button>
-
-                <div className={`flex flex-row rounded-full border border-black mt-5 w-full transition-opacity duration-300 ${showJoinChannelInput ? 'opacity-100' : 'opacity-0'}`}>
-                    <input 
-                        type="text" 
-                        placeholder="Enter Room ID"
-                        className="py-2 px-3 rounded-l-full"
-                        value={joinChannelInput}
-                        onChange={ e => setJoinChannelInput(e.target.value)}
+                <div className="w-full mt-10">
+                    <span className="text-green-500 font-bold mx-1">UserName</span>
+                    <input
+                        type="text"
+                        placeholder="Enter Username"
+                        className="py-3 px-4 break-words text-xs rounded-full w-full border border-black mt-2"
+                        value={textInput}
+                        onChange={(e) => setTextInput(e.target.value)}
                     />
-                    <button 
-                        className="flex-1 py-1 px-4 rounded-full m-1 bg-green-300 hover:bg-green-400 active:bg-green-500"
-                        onClick={ () => joinChannel(joinChannelInput)}
-                    >
-                        Join
-                    </button>
+
+                    <div className={`flex w-full overflow-hidden transition-all duration-200 ${
+                        textInput === '' ? 'max-h-0' : 'max-h-20'
+                    }`}>
+                        <button
+                            className="flex-1 rounded-full bg-green-300 p-3 mt-3 hover:bg-green-400 active:bg-green-500"
+                            onClick={createChannel}
+                        >
+                            <span>Create</span>
+                        </button>
+                    </div>
                 </div>
+                
+
+                <div className="w-full mt-5">
+                    <ul className="mx-3 space-y-2">
+                        <li className="text-gray-500 text-xs">
+                            * Just to Display in Chat
+                        </li>
+                        <li className="text-gray-500 text-xs">
+                            * You Don't Need To Login Or Register
+                        </li>
+                    </ul>
+                </div>
+                
 
             </div>
 
         </div>
     );
-}
- 
+};
+
 export default memo(Welcome);

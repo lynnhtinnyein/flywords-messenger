@@ -8,19 +8,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const channelLimit = 30;
+const channelLimit = 50;
 const activeChannels = [];
 
-//api
-app.get("/", (req, res) => {
-    const channel = activeChannels.find( e => e.name === req.query.channelName);
-    const user = req.query.currentUser || "user_" + generateUniqueName();
-    res.json({
-        joinedBy: user,
-        channel: channel
-    });
-});
-
+//api routes
+//create
 app.post("/", (req, res) => {
     if (activeChannels.length >= channelLimit) {
         res.status(503).json({
@@ -28,7 +20,7 @@ app.post("/", (req, res) => {
         });
     } else {
         const newChannelName = generateUniqueName();
-        const newUser = req.body.currentUser || "user_" + generateUniqueName();
+        const newUser = req.body.currentUser;
         const newChannel = {
             name: newChannelName,
             createdBy: newUser,
@@ -37,6 +29,21 @@ app.post("/", (req, res) => {
         res.json(newChannelName);
     }
 });
+
+//join
+app.get("/", (req, res) => {
+    const channel = activeChannels.find( e => e.name === req.query.channelName);
+    const user = req.query.currentUser;
+    res.json({
+        joinedBy: user,
+        channel: channel
+    });
+});
+
+app.delete("/", (req, res) => {
+    const channelName = req.body.channelName;
+    activeChannels = activeChannels.filter( e => e.name !== channelName);
+})
 
 //socket
 const server = http.createServer(app);
@@ -47,21 +54,12 @@ const io = socketIo(server, {
     },
 });
 
-function hostChannels(socket) {
-
-    activeChannels.forEach((channel) => {
-        socket.on("send_to_" + channel.name, (message) => {
-            console.log("sent");
-            io.emit(channel.name + "_has_new_msg", message);
-        });
-    });
-
-}
-
 io.on("connection", (socket) => {
-
-    socket.on("reHostChannels", () => {
-        hostChannels(socket);
+    
+    socket.on("subscribe", (channelName) => {
+        socket.on("sendMessage" + channelName, (message) => {
+            io.emit("receivedMessage" + channelName, message);
+        });
     });
 
 });
