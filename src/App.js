@@ -22,7 +22,6 @@ const App = () => {
         setSocket(newSocket);
 
         return () => {
-            newSocket.emit("disconnecting", currentUser);
             newSocket.disconnect();
         };
     }, []);
@@ -30,7 +29,7 @@ const App = () => {
     //methods
         const createChannel = () => {
 
-            axios.post('http://localhost:4000', { currentUser })
+            axios.post('http://localhost:4000', { user: currentUser })
             .then( res => {
                 joinChannel(res.data)
             })
@@ -47,16 +46,17 @@ const App = () => {
                 if(alreadyJoined){
                     setCurrentChannel(channelName);
                 } else {
+
                     //check channel exists or not
                     axios.get('http://localhost:4000', {
-                        params: { 
-                            channelName,
-                            currentUser
-                        }
+                        params: { channelName }
                     })
                     .then( res => {
                         if(res.data.channel){
-                            socket.emit('subscribe', res.data.channel.name);
+                            socket.emit('subscribe', {
+                                name: channelName,
+                                user: currentUser
+                            });
                             setJoinedChannels( prevChannels => [...prevChannels, res.data.channel]);
                             setCurrentChannel(res.data.channel.name);
                         } else {
@@ -68,11 +68,10 @@ const App = () => {
                     });
                 }
             }
-        };    
+        };
 
     return (
         <div className="flex flex-col h-screen w-screen">
-
             { (currentUser === null || joinedChannels.length === 0) ? (
                 <Welcome 
                     createChannel={createChannel}
@@ -87,6 +86,8 @@ const App = () => {
                     )}
                     {/* sidebar */}
                     <NavBar
+                        socket={socket}
+                        currentUser={currentUser}
                         showDrawer={showDrawer}
                         setShowDrawer={setShowDrawer}
                         createChannel={createChannel}

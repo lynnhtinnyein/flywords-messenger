@@ -2,13 +2,15 @@ import { memo, useEffect, useState } from "react";
 import useDeviceDetect from "../hooks/useDeviceDetect";
 
 const NavBar = ({ 
+    socket,
+    currentUser,
     showDrawer, 
     setShowDrawer, 
     createChannel,
     joinedChannels,
     joinChannel,
     currentChannel,
-    setCurrentChannel,
+    setCurrentChannel
 }) => {
 
     const { isMobile } = useDeviceDetect();
@@ -23,7 +25,14 @@ const NavBar = ({
     
     //methods
     const leaveChannel = (channelName) => {
-        setLeftChannels( prev => [...prev, channelName] );    
+        if(window.confirm('Leave this Room?')){
+            setLeftChannels( prev => [...prev, channelName] );
+            setCurrentChannel(null);
+            socket.emit('unsubscribe', { 
+                name: channelName,
+                user: currentUser
+            })
+        }
     }
 
     return (

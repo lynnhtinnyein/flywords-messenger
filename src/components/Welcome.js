@@ -16,14 +16,14 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
 
     return (
         <div
-            class="flex flex-row overflow-hidden transition-all duration-500"
+            className="flex flex-row overflow-hidden transition-all duration-500"
             style={{
                 marginLeft: userNameCreated ? "-100%" : "0",
             }}
         >
 
             {/* username create screen */}
-            <div class="flex flex-none items-center justify-center w-screen h-screen">
+            <div className="flex flex-none items-center justify-center w-screen h-screen">
                 <div className="flex flex-col justify-center items-center">
                     <span className="font-bold text-3xl">
                         FlyWords Messenger
@@ -72,7 +72,7 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
             </div>
 
             {/* create/join channel screen */}
-            <div class="flex flex-none items-center justify-center w-screen h-screen">
+            <div className="flex flex-none items-center justify-center w-screen h-screen">
                 <div className="flex flex-col justify-center items-center pb-5">
 
                     <div className="w-full">
@@ -80,7 +80,7 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
                             className="flex flex-row justify-center items-center border border-black rounded px-3 py-2 space-x-1 hover:bg-gray-300 active:bg-gray-400"
                             onClick={ () => setUserNameCreated(false)}
                         >
-                            <i class="fa-solid fa-chevron-left text-xs"></i>
+                            <i className="fa-solid fa-chevron-left text-xs"></i>
                             <span className="text-xs">Back</span>
                         </button>
                     </div>
