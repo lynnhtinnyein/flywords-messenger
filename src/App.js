@@ -22,6 +22,7 @@ const App = () => {
         setSocket(newSocket);
 
         return () => {
+            newSocket.emit("disconnecting", currentUser);
             newSocket.disconnect();
         };
     }, []);
@@ -57,7 +58,6 @@ const App = () => {
                         if(res.data.channel){
                             socket.emit('subscribe', res.data.channel.name);
                             setJoinedChannels( prevChannels => [...prevChannels, res.data.channel]);
-                            setCurrentUser(res.data.joinedBy);
                             setCurrentChannel(res.data.channel.name);
                         } else {
                             window.alert('Chat Room does not exist!')
@@ -73,10 +73,11 @@ const App = () => {
     return (
         <div className="flex flex-col h-screen w-screen">
 
-            { (currentUser === null && joinedChannels.length === 0) ? (
+            { (currentUser === null || joinedChannels.length === 0) ? (
                 <Welcome 
                     createChannel={createChannel}
                     joinChannel={joinChannel}
+                    setCurrentUser={setCurrentUser}
                 />
             ) : (
                 <div className="flex flex-row">

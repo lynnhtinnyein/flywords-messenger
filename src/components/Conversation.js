@@ -124,7 +124,9 @@ const Conversation = ({
                                     }`}
                     >
                         <div className="flex flex-col">
-                            <span className="text-xs mx-1 mb-1 text-gray-600 self-end">
+                            <span className={`text-xs mx-1 mb-1 text-gray-600 ${
+                                message.sentBy === currentUser ? 'self-end' : 'self-start'
+                            }`}>
                                 {message.sentBy === currentUser
                                     ? "You"
                                     : message.sentBy}
