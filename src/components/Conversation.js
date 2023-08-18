@@ -3,11 +3,13 @@ import useDeviceDetect from "../hooks/useDeviceDetect";
 
 const Conversation = ({
     socket,
-    currentChannel,
+    currentUser,
+    currentChannelId,
     showDrawer,
     setShowDrawer,
+    joinChannel,
     joinedChannels,
-    currentUser,
+    setJoinedChannels
 }) => {
     const { isMobile } = useDeviceDetect();
 
@@ -23,10 +25,10 @@ const Conversation = ({
             setSubscribedChannels((prevSubscribedChannels) => {
                 const newSubscribedChannels = [];
 
-                joinedChannels.forEach((channel) => {
-                    if (!prevSubscribedChannels.includes(channel.name)) {
+                joinedChannels.forEach( channel => {
+                    if (!prevSubscribedChannels.includes(channel.id)) {
                         subscribe(channel);
-                        newSubscribedChannels.push(channel.name);
+                        newSubscribedChannels.push(channel.id);
                     }
                 });
 
@@ -36,65 +38,77 @@ const Conversation = ({
     }, [socket, joinedChannels]);
 
     //computed
-    const messagesToDisplay = useMemo(() => {
-        const targetMessages = messagesByChannel.find(
-            (e) => e.channelName === currentChannel
-        )?.messages;
-        return targetMessages || [];
-    }, [currentChannel, messagesByChannel]);
+        const messagesToDisplay = useMemo(() => {
+            const targetChannelMessages = messagesByChannel.find(
+                (e) => e.channelId === currentChannelId
+            )?.messages;
+            return targetChannelMessages || [];
+        }, [currentChannelId, messagesByChannel]);
+
+        const joinedUserNames = useMemo( () => {
+            const channel = joinedChannels.find( e => e.id === currentChannelId )
+            const joinedUsers = channel ? channel.joinedUsers.map( e => e.name ) : [];
+            return joinedUsers;
+        }, [currentChannelId, joinedChannels]);
 
     //methods
-    const subscribe = (channel) => {
-        socket.on("receivedMessage" + channel.name, (newMessage) => {
+        const setNewMessage = (channelId, message) => {
             setMessagesByChannel((prev) => {
-                const targetChannel = prev.find(
-                    (e) => e.channelName === channel.name
-                );
-                const otherChannels = prev.filter(
-                    (e) => e.channelName !== channel.name
-                );
-
-                const newMessages = targetChannel
-                    ? [...targetChannel.messages, newMessage]
-                    : [newMessage];
-
-                return [
-                    ...otherChannels,
-                    {
-                        channelName: channel.name,
-                        messages: newMessages,
-                    },
-                ];
+        
+                const newSet = [...prev];
+                const targetChannelIndex = newSet.findIndex((e) => e.channelId === channelId);
+    
+                if (targetChannelIndex !== -1) {
+                    newSet[targetChannelIndex].messages.push(message);
+                } else {
+                    newSet.push({
+                        channelId: channelId,
+                        messages: [message]
+                    });
+                }
+    
+                return newSet;
             });
-        });
+        } 
+        
+        const subscribe = (channel) => {
 
-        socket.on("channelDeleted" + channel.name, () => {
-            setDeletedChannels((prev) => [...prev, channel.name]);
-        });
-
-        socket.on("joinedUser" + channel.name, () => {
-            //fix
-            // setDeletedChannels((prev) => [...prev, channel.name]);
-        });
-    };
-
-    const sendMessage = () => {
-        if (messageInput !== "" && !deletedChannels.includes(currentChannel)) {
-            socket.emit("sendMessage" + currentChannel, {
-                text: messageInput,
-                sentBy: currentUser,
+            socket.on("receivedMessage" + channel.id, (message) => {
+                setNewMessage(channel.id, message);
             });
-            setMessageInput('');
-        }
-    };
 
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(currentChannel);
-    };
+            socket.on("channelDisconnected" + channel.id, (data) => {
+                setNewMessage(channel.id, data.message);
+                setJoinedChannels( prev => {
+
+                    const newSet = [...prev];
+                    const targetChannelIndex = newSet.findIndex( e => e.id === channel.id );
+
+                    channel.joinedUsers = channel.joinedUsers.filter( e => e.id !== data.leftUserId );
+                    newSet[targetChannelIndex] = channel;
+
+                    return newSet;
+                });
+            });
+        };
+    
+        const sendMessage = () => {
+            if (messageInput !== "") {
+                socket.emit("sendMessage" + currentChannelId, {
+                    text: messageInput,
+                    sentBy: currentUser,
+                });
+                setMessageInput('');
+            }
+        };
+
+        const copyToClipboard = () => {
+            navigator.clipboard.writeText(currentChannelId);
+        };
 
     return (
         <>
-            { currentChannel ? (
+            { currentChannelId ? (
                 <div className="flex flex-1 flex-col h-screen">
                     {/* header */}
                     <div className="flex flex-row items-center justify-center bg-white py-3 px-3 space-x-2 border-b border-b-gray-400">
@@ -108,7 +122,7 @@ const Conversation = ({
                             )}
                         </div>
                         <div className="flex flex-1 flex-row items-center justify-center space-x-2">
-                            <span className="font-bold">{currentChannel}</span>
+                            <span className="font-bold">{currentChannelId}</span>
                             <button
                                 className="bg-gray-200 px-2 rounded-full hover:bg-gray-300 active:bg-gray-400"
                                 onClick={copyToClipboard}
@@ -117,22 +131,26 @@ const Conversation = ({
                             </button>
                         </div>
                         <div className="flex flex-1 items-center justify-end">
-                            <button className="mr-3">
+                            <button className="relative mr-3">
                                 <i className="fa-solid fa-user"></i>
-                                <span className="absolute top-1 right-3 font-bold bg-red-500 text-xs rounded-full text-white px-1 border-2 border-white">
-                                    2
+                                <span className="absolute bottom-3 left-2 font-bold bg-red-500 text-xs rounded-full text-white px-1 border-2 border-white">
+                                    { joinedUserNames.length }
                                 </span>
                             </button>
                         </div>
                     </div>
 
-                    {deletedChannels.includes(currentChannel) && (
-                        <div className="flex flex-row items-center justify-center bg-red-200 py-2">
+                        <div className="flex flex-row items-center justify-center bg-red-200 py-2 space-x-1">
                             <span className="text-xs">
-                                This Chat Room is no longer available!
+                                You've left from this chat because of inactivity.
+                            </span>
+                            <span
+                                className="text-xs cursor-pointer underline" 
+                                onClick={ () => joinChannel(currentChannelId) }
+                            >
+                                ReJoin
                             </span>
                         </div>
-                    )}
 
                     {/* messages screen */}
                     <div className="flex flex-1 flex-col overflow-y-auto h-screen py-5">
@@ -141,41 +159,52 @@ const Conversation = ({
                         </div>
 
                         {messagesToDisplay.map((message, index) => (
-                            <div
-                                key={index}
-                                className={`flex flex-row my-2 mx-3 
-                                    ${
-                                        message.sentBy === currentUser
-                                            ? "justify-end"
-                                            : "justify-start"
-                                    }`}
-                            >
-                                <div className="flex flex-col">
-                                    <span
-                                        className={`text-xs mx-1 mb-1 text-gray-600 ${
-                                            message.sentBy === currentUser
-                                                ? "self-end"
-                                                : "self-start"
-                                        }`}
-                                    >
-                                        {message.sentBy === currentUser
-                                            ? "You"
-                                            : message.sentBy}
+                            message.sentBy.name === 'server' ? (
+                                <div 
+                                    key={index}
+                                    className="flex flex-row justify-center my-2"
+                                >
+                                    <span className="text-xs text-gray-400">
+                                        {message.text}
                                     </span>
-                                    <div
-                                        className={`bg-green-100 px-2 pb-2 pt-1 rounded-xl border border-black break-words max-w-sm 
-                                            ${
-                                                message.sentBy === currentUser
-                                                    ? "bg-green-100"
-                                                    : "bg-white"
+                                </div>
+                            ) : (
+                                <div
+                                    key={index}
+                                    className={`flex flex-row my-2 mx-3 
+                                        ${
+                                            message.sentBy.id === currentUser.id
+                                                ? "justify-end"
+                                                : "justify-start"
+                                        }`}
+                                >
+                                    <div className="flex flex-col">
+                                        <span
+                                            className={`text-xs mx-1 mb-1 text-gray-600 ${
+                                                message.sentBy.id === currentUser.id
+                                                    ? "self-end"
+                                                    : "self-start"
                                             }`}
-                                    >
-                                        <span className="text-xs break-words">
-                                            {message.text}
+                                        >
+                                            {message.sentBy.id === currentUser.id
+                                                ? "You"
+                                                : message.sentBy.name}
                                         </span>
+                                        <div
+                                            className={`bg-green-100 px-2 pb-2 pt-1 rounded-xl border border-black break-words max-w-sm 
+                                                ${
+                                                    message.sentBy.id === currentUser.id
+                                                        ? "bg-green-100"
+                                                        : "bg-white"
+                                                }`}
+                                        >
+                                            <span className="text-xs break-words">
+                                                {message.text}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )
                         ))}
                     </div>
 

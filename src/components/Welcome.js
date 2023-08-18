@@ -1,16 +1,19 @@
 import { memo, useState } from "react";
+import generateUniqueName from "../helper/generateUniqueName";
 
 const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
 
     const [userName, setUserName] = useState("");
     const [joinChannelInput, setJoinChannelInput] = useState("");
     const [showJoinChannelInput, setShowJoinChannelInput] = useState(false);
-    const [userNameCreated, setUserNameCreated] = useState(false);
+    const [userCreated, setUserCreated] = useState(false);
 
     const createUser = () => {
         if(userName !== ''){
-            setCurrentUser(userName)
-            setUserNameCreated(true);
+            const id = 'user_' + generateUniqueName();
+            const name = userName;
+            setCurrentUser({id, name})
+            setUserCreated(true);
         }
     }
 
@@ -18,7 +21,7 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
         <div
             className="flex flex-row overflow-hidden transition-all duration-500"
             style={{
-                marginLeft: userNameCreated ? "-100%" : "0",
+                marginLeft: userCreated ? "-100%" : "0",
             }}
         >
 
@@ -78,7 +81,7 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
                     <div className="w-full">
                         <button 
                             className="flex flex-row justify-center items-center border border-black rounded px-3 py-2 space-x-1 hover:bg-gray-300 active:bg-gray-400"
-                            onClick={ () => setUserNameCreated(false)}
+                            onClick={ () => setUserCreated(false)}
                         >
                             <i className="fa-solid fa-chevron-left text-xs"></i>
                             <span className="text-xs">Back</span>

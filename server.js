@@ -2,7 +2,7 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
-const generateUniqueName = require("./helper/generateUniqueName");
+const generateUniqueName = require("./src/helper/generateUniqueName");
 
 const app = express();
 app.use(cors());
@@ -19,23 +19,36 @@ let activeChannels = [];
                 msg: "Server is currently loaded! Please try again later.",
             });
         } else {
-            const newChannelName = generateUniqueName();
-            const user = req.body.user;
+            const newChannelId = generateUniqueName();
+            const createdBy = req.body.user;
             const newChannel = {
-                name: newChannelName,
-                createdBy: user,
+                id: newChannelId,
+                createdBy: createdBy,
+                joinedUsers: []
             };
             activeChannels.push(newChannel);
-            res.json(newChannelName);
+            res.json(newChannel);
         }
     });
 
     //join
     app.get("/", (req, res) => {
-        const channel = activeChannels.find( e => e.name === req.query.channelName);
-        res.json({ channel });
+        const channelId = req.query.id;
+        const requestedBy = req.query.requestedBy;
+    
+        const channelIndex = activeChannels.findIndex( e => e.id === channelId);
+    
+        if (channelIndex !== -1) {
+            const channel = activeChannels[channelIndex];
+            channel.joinedUsers.push(requestedBy);
+    
+            activeChannels[channelIndex] = channel;
+            res.json(channel);
+        } else {
+            res.status(404).json({ msg: "Chat Room does not exist!" });
+        }
     });
-
+    
 //socket
     const server = http.createServer(app);
     const io = socketIo(server, {
@@ -47,34 +60,51 @@ let activeChannels = [];
 
     io.on("connection", (socket) => {
         
-        let currentUser = null;
+        function deleteChannel(requestData) {
 
-        function deleteChannel(channel) {
-            socket.removeAllListeners("sendMessage" + channel.name)
+            const channelId = requestData.id;
+            const requestedBy = requestData.requestedBy;
 
-            //fix
-            //io.emit("channelDeleted" + channel.name);
+            socket.removeAllListeners("sendMessage" + channelId);
+            io.emit('channelDisconnected' + channelId, {
+                leftUserId: requestedBy.id,
+                message: {
+                    text: `${requestedBy.name} left the chat.`,
+                    sentBy: {
+                        id: generateUniqueName(),
+                        name: 'server'
+                    }
+                }
+            });
 
+            const targetChannel = activeChannels.find( e => e.id === channelId);
+            
+            //delete channel if no one is active
+            if(targetChannel.joinedUsers.length <= 1){
+                activeChannels = activeChannels.filter( e => e.id !== channelId );
+            } else {
+                const channelIndex = activeChannels.findIndex( e => e.id === channelId);
+                const channel = activeChannels[channelIndex];
 
-            const isOwner = activeChannels.find( e => e.name === channel.name ).createdBy === channel.user;
-            if(isOwner){
-                activeChannels = activeChannels.filter( e => e.name !== channel.name );
+                //remove user
+                channel.joinedUsers = channel.joinedUsers.filter( e => e.id !== requestedBy.id );
+    
+                activeChannels[channelIndex] = channel;                
             }
         }
 
-        socket.on("subscribe", (channel) => {
+        socket.on("subscribe", (requestData) => {
+            const channelId = requestData.id;
+            const requestedBy = requestData.requestedBy;
 
-            currentUser = channel.user;
-            let deleteChannelTimer = setTimeout( () => deleteChannel(channel), 3600000);
+            let deleteChannelTimer = setTimeout( () => deleteChannel(requestData), 3600000); // 1 hour
 
-            io.emit("userJoined" + channel.name, channel.user );
+            io.emit("userJoined" + channelId, requestedBy );
 
-            socket.on("sendMessage" + channel.name, (message) => {
-
+            socket.on("sendMessage" + channelId, (newMessage) => {
                 clearTimeout(deleteChannelTimer);
-                deleteChannelTimer = setTimeout( () => deleteChannel(channel), 3600000);
-
-                io.emit("receivedMessage" + channel.name, message);
+                deleteChannelTimer = setTimeout( () => deleteChannel(requestData), 3600000);
+                io.emit("receivedMessage" + channelId, newMessage);
             });
         });
 

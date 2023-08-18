@@ -11,10 +11,11 @@ const App = () => {
     const { isMobile } = useDeviceDetect();
     const [socket, setSocket] = useState(null);
 
-    const [showDrawer, setShowDrawer] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
-    const [currentChannel, setCurrentChannel] = useState(null); 
+    const [currentChannelId, setCurrentChannelId] = useState(null); 
     const [joinedChannels, setJoinedChannels] = useState([]); // obj array
+
+    const [showDrawer, setShowDrawer] = useState(false);
 
     //mounted
     useEffect(() => {
@@ -31,40 +32,38 @@ const App = () => {
 
             axios.post('http://localhost:4000', { user: currentUser })
             .then( res => {
-                joinChannel(res.data)
+                joinChannel(res.data.id)
             })
             .catch( error => {
                 window.alert(error.response.data.msg)
             });
         };
 
-        const joinChannel = (channelName) => {
+        const joinChannel = (channelId) => {
 
-            if(channelName !== ''){
-                const alreadyJoined = joinedChannels.find( e => e.name === channelName);
+            if(channelId !== ''){
+                const alreadyJoined = joinedChannels.find( e => e.id === channelId);
 
                 if(alreadyJoined){
-                    setCurrentChannel(channelName);
+                    setCurrentChannelId(channelId);
                 } else {
+
+                    const requestDataToJoin = { 
+                        id: channelId,
+                        requestedBy: currentUser
+                    }
 
                     //check channel exists or not
                     axios.get('http://localhost:4000', {
-                        params: { channelName }
+                        params: requestDataToJoin
                     })
                     .then( res => {
-                        if(res.data.channel){
-                            socket.emit('subscribe', {
-                                name: channelName,
-                                user: currentUser
-                            });
-                            setJoinedChannels( prevChannels => [...prevChannels, res.data.channel]);
-                            setCurrentChannel(res.data.channel.name);
-                        } else {
-                            window.alert('Chat Room does not exist!')
-                        }
+                        socket.emit('subscribe', requestDataToJoin);
+                        setJoinedChannels( prevChannels => [...prevChannels, res.data]);
+                        setCurrentChannelId(channelId);
                     })
-                    .catch( () => {
-                        window.alert('Chat Room does not exist!')
+                    .catch( (error) => {
+                        window.alert(error.response.data.msg)
                     });
                 }
             }
@@ -87,22 +86,24 @@ const App = () => {
                     {/* sidebar */}
                     <NavBar
                         socket={socket}
-                        currentUser={currentUser}
                         showDrawer={showDrawer}
                         setShowDrawer={setShowDrawer}
+                        currentUser={currentUser}
+                        currentChannelId={currentChannelId}
+                        setCurrentChannelId={setCurrentChannelId}
                         createChannel={createChannel}
                         joinChannel={joinChannel}
                         joinedChannels={joinedChannels}
-                        currentChannel={currentChannel}
-                        setCurrentChannel={setCurrentChannel}
                     />
                     <Conversation
                         socket={socket}
-                        currentChannel={currentChannel}
+                        currentUser={currentUser}
+                        currentChannelId={currentChannelId}
                         showDrawer={showDrawer}
                         setShowDrawer={setShowDrawer}
+                        joinChannel={joinChannel}
                         joinedChannels={joinedChannels}
-                        currentUser={currentUser}
+                        setJoinedChannels={setJoinedChannels}
                     />
                 </div>
             )}

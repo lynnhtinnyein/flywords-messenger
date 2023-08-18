@@ -9,8 +9,8 @@ const NavBar = ({
     createChannel,
     joinedChannels,
     joinChannel,
-    currentChannel,
-    setCurrentChannel
+    currentChannelId,
+    setCurrentChannelId
 }) => {
 
     const { isMobile } = useDeviceDetect();
@@ -24,13 +24,13 @@ const NavBar = ({
     }, [isMobile]);
     
     //methods
-    const leaveChannel = (channelName) => {
+    const leaveChannel = (channelId) => {
         if(window.confirm('Leave this Room?')){
-            setLeftChannels( prev => [...prev, channelName] );
-            setCurrentChannel(null);
+            setLeftChannels( prev => [...prev, channelId] );
+            setCurrentChannelId(null);
             socket.emit('unsubscribe', { 
-                name: channelName,
-                user: currentUser
+                id: channelId,
+                requestedBy: currentUser
             })
         }
     }
@@ -111,14 +111,14 @@ const NavBar = ({
                     <div
                         key={index}
                         className={`transition-all duration-400 overflow-hidden 
-                        ${ leftChannels.includes(channel.name) ? "max-h-0" : "max-h-24"} 
-                        ${channel.name === currentChannel && "bg-gray-200 "}`}
+                        ${ leftChannels.includes(channel.id) ? "max-h-0" : "max-h-24"} 
+                        ${channel.id === currentChannelId && "bg-gray-200 "}`}
                     >
                         <div className="flex flex-row border-b border-b-gray-200 justify-between items-center py-1">
                             <div
                                 className="flex-1 flex-col space-y-3 px-4 cursor-pointer"
                                 onClick={() => {
-                                    setCurrentChannel(channel.name);
+                                    setCurrentChannelId(channel.id);
                                     isMobile && setShowDrawer(false);
                                 }}
                             >
@@ -127,16 +127,19 @@ const NavBar = ({
                                         Room
                                     </span>
                                     <span className="font-bold text-sm">
-                                        {channel.name}
+                                        {channel.id}
                                     </span>
                                 </div>
                                 <span className="text-xs text-gray-400">
-                                    Created By - {channel.createdBy}
+                                    Created By - { channel.createdBy.id === currentUser.id
+                                        ? 'You'
+                                        : channel.createdBy.name
+                                    }
                                 </span>
                             </div>
                             <button
                                 className="p-5"
-                                onClick={() => leaveChannel(channel.name)}
+                                onClick={() => leaveChannel(channel.id)}
                             >
                                 <i className="fa-solid fa-x text-xs text-gray-400"></i>
                             </button>
