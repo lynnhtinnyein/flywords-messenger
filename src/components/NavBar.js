@@ -8,6 +8,7 @@ const NavBar = ({
     setShowDrawer, 
     createChannel,
     joinedChannels,
+    setJoinedChannels,
     joinChannel,
     currentChannelId,
     setCurrentChannelId
@@ -17,7 +18,6 @@ const NavBar = ({
 
     const [showJoinChannelInput, setShowJoinChannelInput] = useState(false);
     const [joinChannelInput, setJoinChannelInput] = useState('');
-    const [leftChannels, setLeftChannels] = useState([]);
     
     useEffect( () => {
         setShowDrawer(!isMobile);
@@ -26,12 +26,24 @@ const NavBar = ({
     //methods
     const leaveChannel = (channelId) => {
         if(window.confirm('Leave this Room?')){
-            setLeftChannels( prev => [...prev, channelId] );
-            setCurrentChannelId(null);
+
+            setJoinedChannels( prev => {
+                return prev.filter( e => e.id !== channelId);
+            });
+
+            if(channelId === currentChannelId){
+                setCurrentChannelId(null);
+            }
             socket.emit('unsubscribe', { 
                 id: channelId,
                 requestedBy: currentUser
             })
+        }
+    }
+
+    const handleKeyPress = (event) => {
+        if (event.key === "Enter") {
+            joinChannel(joinChannelInput);
         }
     }
 
@@ -94,9 +106,10 @@ const NavBar = ({
                             onChange={(e) =>
                                 setJoinChannelInput(e.target.value)
                             }
+                            onKeyUp={handleKeyPress}
                         />
                         <button
-                            className="bg-green-300 rounded pb-1 m-1"
+                            className="bg-green-300 rounded pb-1 m-1 hover:bg-green-400 active:bg-green-500"
                             onClick={() => joinChannel(joinChannelInput)}
                         >
                             <span className="text-xs px-3">Join</span>
@@ -110,19 +123,17 @@ const NavBar = ({
                 {joinedChannels.map((channel, index) => (
                     <div
                         key={index}
-                        className={`transition-all duration-400 overflow-hidden 
-                        ${ leftChannels.includes(channel.id) ? "max-h-0" : "max-h-24"} 
-                        ${channel.id === currentChannelId && "bg-gray-200 "}`}
+                        className={channel.id === currentChannelId ? 'bg-gray-200' : ''}
                     >
-                        <div className="flex flex-row border-b border-b-gray-200 justify-between items-center py-1">
+                        <div className="flex flex-row border-b border-b-gray-200 justify-between items-center py-2">
                             <div
-                                className="flex-1 flex-col space-y-3 px-4 cursor-pointer"
+                                className="flex-1 flex-col space-y-1 px-4 cursor-pointer"
                                 onClick={() => {
                                     setCurrentChannelId(channel.id);
                                     isMobile && setShowDrawer(false);
                                 }}
                             >
-                                <div className="mt-3 mb-2">
+                                <div>
                                     <span className="text-gray-500 text-sm font-bold mr-2">
                                         Room
                                     </span>
@@ -130,12 +141,14 @@ const NavBar = ({
                                         {channel.id}
                                     </span>
                                 </div>
-                                <span className="text-xs text-gray-400">
-                                    Created By - { channel.createdBy.id === currentUser.id
-                                        ? 'You'
-                                        : channel.createdBy.name
-                                    }
-                                </span>
+                                <div>
+                                    <span className="text-xs text-gray-400">
+                                        Created By - { channel.createdBy.id === currentUser.id
+                                            ? 'You'
+                                            : channel.createdBy.name
+                                        }
+                                    </span>
+                                </div>
                             </div>
                             <button
                                 className="p-5"

@@ -1,8 +1,9 @@
-import { memo, useState } from "react";
+import { memo, useRef, useState } from "react";
 import generateUniqueName from "../helper/generateUniqueName";
 
 const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
 
+    const joinChannelInputRef = useRef(null);
     const [userName, setUserName] = useState("");
     const [joinChannelInput, setJoinChannelInput] = useState("");
     const [showJoinChannelInput, setShowJoinChannelInput] = useState(false);
@@ -14,6 +15,16 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
             const name = userName;
             setCurrentUser({id, name})
             setUserCreated(true);
+        }
+    }
+
+    const handleKeyPress = (event, type) => {
+        if (event.key === "Enter") {
+            if(type === 'create'){
+                createUser();
+            } else {
+                joinChannel(joinChannelInput);
+            }
         }
     }
 
@@ -50,10 +61,11 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
                                 onChange={(e) =>
                                     setUserName(e.target.value)
                                 }
+                                onKeyUp={ (event) => handleKeyPress(event, 'create')}
                             />
 
                             <button
-                                className={`flex items-center justify-center rounded-full bg-green-300 transition-all duration-200 overflow-hidden ${
+                                className={`flex items-center justify-center rounded-full bg-green-300 hover:bg-green-400 active:bg-green-500 transition-all duration-200 overflow-hidden ${
                                     userName === "" ? "w-0" : "w-16 m-1"
                                 }`}
                                 onClick={createUser}
@@ -103,11 +115,12 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
 
                         <button
                             className="flex flex-row space-x-2 items-center justify-center rounded-full w-full py-3 bg-blue-200 hover:bg-blue-300 active:bg-blue-400 mt-3"
-                            onClick={() =>
+                            onClick={() => {
+                                joinChannelInputRef.current.focus();
                                 setShowJoinChannelInput(
                                     !showJoinChannelInput
                                 )
-                            }
+                            }}
                         >
                             <i className="fa-solid fa-link"></i>
                             <span>Join Chat Room</span>
@@ -117,6 +130,7 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
                             showJoinChannelInput ? 'opactiy-100' : 'opacity-0'
                         }`}>
                             <input
+                                ref={joinChannelInputRef}
                                 type="text"
                                 placeholder="Enter Room ID"
                                 className="flex-1 px-4 py-3 text-xs w-full rounded-l-full"
@@ -124,10 +138,11 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
                                 onChange={(e) =>
                                     setJoinChannelInput(e.target.value)
                                 }
+                                onKeyUp={ (event) => handleKeyPress(event, 'join')}
                             />
 
                             <button
-                                className="flex items-center justify-center rounded-full bg-green-300 w-16 m-1 "
+                                className="flex items-center justify-center rounded-full w-16 m-1 bg-green-300 hover:bg-green-400 active:bg-green-500"
                                 onClick={ () => joinChannel(joinChannelInput)}
                             >
                                 <span className="text-xs">Join</span>

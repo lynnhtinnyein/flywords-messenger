@@ -29,43 +29,44 @@ const App = () => {
 
     //methods
         const createChannel = () => {
-
             axios.post('http://localhost:4000', { user: currentUser })
             .then( res => {
                 joinChannel(res.data.id)
             })
             .catch( error => {
-                window.alert(error.response.data.msg)
+                window.alert(error.response ? error.response.data.msg : 'Cannot Connect to Server!');
             });
         };
 
         const joinChannel = (channelId) => {
-
             if(channelId !== ''){
-                const alreadyJoined = joinedChannels.find( e => e.id === channelId);
-
-                if(alreadyJoined){
-                    setCurrentChannelId(channelId);
-                } else {
-
-                    const requestDataToJoin = { 
-                        id: channelId,
-                        requestedBy: currentUser
-                    }
-
-                    //check channel exists or not
-                    axios.get('http://localhost:4000', {
-                        params: requestDataToJoin
-                    })
-                    .then( res => {
-                        socket.emit('subscribe', requestDataToJoin);
-                        setJoinedChannels( prevChannels => [...prevChannels, res.data]);
-                        setCurrentChannelId(channelId);
-                    })
-                    .catch( (error) => {
-                        window.alert(error.response.data.msg)
-                    });
+                const requestDataToJoin = { 
+                    id: channelId,
+                    requestedBy: currentUser
                 }
+
+                //check channel exists or not
+                axios.get('http://localhost:4000', {
+                    params: requestDataToJoin
+                })
+                .then( res => {
+                    setJoinedChannels( prevChannels => {
+                        const newChannel = res.data;
+                        const alreadyJoined = prevChannels.find( e => e.id === channelId);
+                        const otherChannels = prevChannels.filter( e => e.id !== channelId);
+                        const alreadySubscribed = alreadyJoined ? alreadyJoined.joinedUsers.find( e => e.id === currentUser.id) : false;
+
+                        if(!alreadySubscribed){
+                            socket.emit('subscribe', requestDataToJoin);
+                        }
+
+                        return alreadyJoined ? [...otherChannels, newChannel] : [...prevChannels, newChannel];
+                    });
+                    setCurrentChannelId(channelId);
+                })
+                .catch( (error) => {
+                    window.alert(error.response ? error.response.data.msg : 'Cannot Connect to Server!');
+                });
             }
         };
 
@@ -94,6 +95,7 @@ const App = () => {
                         createChannel={createChannel}
                         joinChannel={joinChannel}
                         joinedChannels={joinedChannels}
+                        setJoinedChannels={setJoinedChannels}
                     />
                     <Conversation
                         socket={socket}

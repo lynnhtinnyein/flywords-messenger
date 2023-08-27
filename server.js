@@ -16,7 +16,7 @@ let activeChannels = [];
     app.post("/", (req, res) => {
         if (activeChannels.length >= channelLimit) {
             res.status(503).json({
-                msg: "Server is currently loaded! Please try again later.",
+                msg: "Server is currently overloaded! Please try again later.",
             });
         } else {
             const newChannelId = generateUniqueName();
@@ -36,13 +36,16 @@ let activeChannels = [];
         const channelId = req.query.id;
         const requestedBy = req.query.requestedBy;
     
-        const channelIndex = activeChannels.findIndex( e => e.id === channelId);
+        const targetChannelIndex = activeChannels.findIndex( e => e.id === channelId);
     
-        if (channelIndex !== -1) {
-            const channel = activeChannels[channelIndex];
-            channel.joinedUsers.push(requestedBy);
+        if (targetChannelIndex !== -1) {
+            const channel = activeChannels[targetChannelIndex];
+        
+            if(!channel.joinedUsers.find( e => e.id === requestedBy.id)){
+                channel.joinedUsers.push(requestedBy);
+            }
     
-            activeChannels[channelIndex] = channel;
+            activeChannels[targetChannelIndex] = channel;
             res.json(channel);
         } else {
             res.status(404).json({ msg: "Chat Room does not exist!" });
@@ -61,7 +64,6 @@ let activeChannels = [];
     io.on("connection", (socket) => {
         
         function deleteChannel(requestData) {
-
             const channelId = requestData.id;
             const requestedBy = requestData.requestedBy;
 
@@ -79,17 +81,17 @@ let activeChannels = [];
 
             const targetChannel = activeChannels.find( e => e.id === channelId);
             
-            //delete channel if no one is active
+            //delete on server
             if(targetChannel.joinedUsers.length <= 1){
                 activeChannels = activeChannels.filter( e => e.id !== channelId );
             } else {
-                const channelIndex = activeChannels.findIndex( e => e.id === channelId);
-                const channel = activeChannels[channelIndex];
+                const targetChannelIndex = activeChannels.findIndex( e => e.id === channelId);
+                const channel = activeChannels[targetChannelIndex];
 
                 //remove user
                 channel.joinedUsers = channel.joinedUsers.filter( e => e.id !== requestedBy.id );
     
-                activeChannels[channelIndex] = channel;                
+                activeChannels[targetChannelIndex] = channel;                
             }
         }
 
@@ -97,9 +99,18 @@ let activeChannels = [];
             const channelId = requestData.id;
             const requestedBy = requestData.requestedBy;
 
-            let deleteChannelTimer = setTimeout( () => deleteChannel(requestData), 3600000); // 1 hour
+            let deleteChannelTimer = setTimeout( () => deleteChannel(requestData), 3600000); // 3600000 1 hour
 
-            io.emit("userJoined" + channelId, requestedBy );
+            io.emit('userJoined' + channelId, {
+                joinedUser: requestedBy,
+                message: {
+                    text: `${requestedBy.name} joined the chat.`,
+                    sentBy: {
+                        id: generateUniqueName(),
+                        name: 'server'
+                    }
+                }
+            });
 
             socket.on("sendMessage" + channelId, (newMessage) => {
                 clearTimeout(deleteChannelTimer);
@@ -108,8 +119,8 @@ let activeChannels = [];
             });
         });
 
-        socket.on("unsubscribe", (channel) => {
-            deleteChannel(channel)
+        socket.on("unsubscribe", (requestData) => {
+            deleteChannel(requestData);
         })
     });
 
