@@ -118,7 +118,6 @@ const Conversation = ({
                 setMessageInput('');
                 setTimeout(() => {
                     if (messagesScreenRef.current) {
-                        console.log(messagesScreenRef.current.scrollTop, messagesScreenRef.current.scrollHeight)
                         messagesScreenRef.current.scrollTop = messagesScreenRef.current.scrollHeight;
                     }
                 }, 200);
@@ -140,20 +139,20 @@ const Conversation = ({
             { currentChannelId ? (
                 <div className="flex flex-1 flex-col h-screen">
                     {/* header */}
-                    <div className="flex flex-row items-center justify-center bg-white py-3 px-3 space-x-2 border-b border-b-gray-400">
+                    <div className="flex flex-row items-center justify-center py-3 px-3 space-x-2 border-b border-b-gray-400 dark:bg-zinc-700 dark:border-b-gray-800">
                         <div className="flex flex-1">
                             {isMobile && (
                                 <button
                                     onClick={() => setShowDrawer(!showDrawer)}
                                 >
-                                    <i className="fa-solid text-lg fa-bars-staggered"></i>
+                                    <i className="fa-solid text-lg fa-bars-staggered dark:text-white"></i>
                                 </button>
                             )}
                         </div>
                         <div className="flex flex-1 flex-row items-center justify-center space-x-2">
-                            <span className="font-bold">{currentChannelId}</span>
+                            <span className="font-bold dark:text-white">{currentChannelId}</span>
                             <button
-                                className="bg-gray-200 px-2 rounded-full hover:bg-gray-300 active:bg-gray-400"
+                                className="bg-gray-200 px-2 rounded-full hover:bg-gray-300 active:bg-gray-400 opacity-80"
                                 onClick={copyToClipboard}
                             >
                                 <i className="fa-regular text-gray-700 fa-copy"></i>
@@ -164,7 +163,7 @@ const Conversation = ({
                                 className="relative mr-3"
                                 onClick={ () => setShowJoinedUsers(!showJoindedUsers)}
                             >
-                                <i className="fa-solid fa-user"></i>
+                                <i className="fa-solid fa-user dark:text-white"></i>
                                 <span className="absolute bottom-3 left-2 font-bold bg-red-500 text-xs rounded-full text-white px-1 border-2 border-white">
                                     { joinedUsers.length }
                                 </span>
@@ -205,7 +204,7 @@ const Conversation = ({
                     {/* messages screen */}
                     <div 
                         ref={messagesScreenRef}
-                        className="flex flex-1 flex-col overflow-y-auto h-screen py-5 scroll-smooth"
+                        className="flex flex-1 flex-col overflow-y-auto h-screen py-5 scroll-smooth dark:bg-zinc-700"
                     >
                         <div className="flex flex-1">
                             {/* just a trick:: to make msgs justify at the end, cuz justify-end is not working properly with scrollview */}
@@ -233,7 +232,7 @@ const Conversation = ({
                                 >
                                     <div className="flex flex-col">
                                         <span
-                                            className={`text-xs mx-1 mb-1 text-gray-600 ${
+                                            className={`text-xs mx-1 mb-1 text-gray-600 dark:text-white ${
                                                 message.sentBy.id === currentUser.id
                                                     ? "self-end"
                                                     : "self-start"
@@ -262,16 +261,15 @@ const Conversation = ({
                     </div>
 
                     {/* input */}
-                    <div className="flex flex-row items-center justify-center bg-white p-3 space-x-2 border-t border-t-gray-400">
+                    <div className="flex flex-row items-center justify-center p-3 space-x-2 border-t border-t-gray-400 dark:bg-zinc-700 dark:border-t-gray-800">
                         <input
                             type="text"
                             placeholder="Message..."
-                            className="flex flex-1 border border-black text-xs rounded-full px-4 py-3"
+                            className="flex flex-1 border border-black text-xs rounded-full px-4 py-3 dark:bg-zinc-600 dark:border-gray-800 dark:text-white"
                             value={messageInput}
                             onChange={(e) => setMessageInput(e.target.value)}
                             onKeyUp={handleKeyPress}
                         />
-
                         <button
                             className="bg-green-300 hover:bg-green-400 active:bg-green-500 py-2 px-3 rounded-full shadow"
                             onClick={sendMessage}

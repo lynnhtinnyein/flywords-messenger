@@ -37,9 +37,9 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
         >
 
             {/* username create screen */}
-            <div className="flex flex-none items-center justify-center w-screen h-screen">
+            <div className="flex flex-none items-center justify-center w-screen h-screen dark:bg-zinc-700">
                 <div className="flex flex-col justify-center items-center">
-                    <span className="font-bold text-3xl">
+                    <span className="font-bold text-3xl dark:text-white">
                         FlyWords Messenger
                     </span>
 
@@ -48,11 +48,11 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
                             Describe Yourself
                         </span>
 
-                        <div className="flex flex-row border border-black rounded-full mt-2">
+                        <div className="flex flex-row border border-black rounded-full mt-2 dark:bg-zinc-600 dark:border-zinc-600">
                             <input
                                 type="text"
                                 placeholder="Enter Username"
-                                className={`flex-1 px-4 py-3 text-xs w-full ${
+                                className={`flex-1 px-4 py-3 text-xs w-full dark:bg-zinc-600 dark:text-white ${
                                     userName === ""
                                         ? "rounded-full"
                                         : "rounded-l-full"
@@ -87,20 +87,20 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
             </div>
 
             {/* create/join channel screen */}
-            <div className="flex flex-none items-center justify-center w-screen h-screen">
+            <div className="flex flex-none items-center justify-center w-screen h-screen dark:bg-zinc-700">
                 <div className="flex flex-col justify-center items-center pb-5">
 
                     <div className="w-full">
                         <button 
-                            className="flex flex-row justify-center items-center border border-black rounded px-3 py-2 space-x-1 hover:bg-gray-300 active:bg-gray-400"
+                            className="flex flex-row justify-center items-center border border-black rounded px-3 py-2 space-x-1 dark:border-gray-400"
                             onClick={ () => setUserCreated(false)}
                         >
-                            <i className="fa-solid fa-chevron-left text-xs"></i>
-                            <span className="text-xs">Back</span>
+                            <i className="fa-solid fa-chevron-left text-xs dark:text-gray-300"></i>
+                            <span className="text-xs dark:text-gray-300">Back</span>
                         </button>
                     </div>
 
-                    <span className="font-bold text-3xl mt-10">
+                    <span className="font-bold text-3xl mt-10 dark:text-white">
                         FlyWords Messenger
                     </span>
 
@@ -126,14 +126,14 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
                             <span>Join Chat Room</span>
                         </button>
 
-                        <div className={`flex flex-row border border-black rounded-full mt-3 transition-opacity duration-200 ${
+                        <div className={`flex flex-row border border-black rounded-full mt-3 transition-opacity duration-200 dark:bg-zinc-600 dark:border-zinc-800 ${
                             showJoinChannelInput ? 'opactiy-100' : 'opacity-0'
                         }`}>
                             <input
                                 ref={joinChannelInputRef}
                                 type="text"
                                 placeholder="Enter Room ID"
-                                className="flex-1 px-4 py-3 text-xs w-full rounded-l-full"
+                                className="flex-1 px-4 py-3 text-xs w-full rounded-l-full dark:bg-zinc-600 dark:text-white"
                                 value={joinChannelInput}
                                 onChange={(e) =>
                                     setJoinChannelInput(e.target.value)

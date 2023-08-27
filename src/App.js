@@ -16,6 +16,7 @@ const App = () => {
     const [joinedChannels, setJoinedChannels] = useState([]); // obj array
 
     const [showDrawer, setShowDrawer] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(false);
 
     //mounted
     useEffect(() => {
@@ -71,7 +72,7 @@ const App = () => {
         };
 
     return (
-        <div className="flex flex-col h-screen w-screen">
+        <div className={`flex flex-col h-screen w-screen ${ isDarkMode && 'dark' }`}>
             { (currentUser === null || joinedChannels.length === 0) ? (
                 <Welcome 
                     createChannel={createChannel}
@@ -82,7 +83,7 @@ const App = () => {
                 <div className="flex flex-row">
 
                     { !isMobile && (
-                        <div className="bg-white w-80"/>
+                        <div className="bg-white w-80 dark:bg-zinc-700"/>
                     )}
                     {/* sidebar */}
                     <NavBar
@@ -96,6 +97,8 @@ const App = () => {
                         joinChannel={joinChannel}
                         joinedChannels={joinedChannels}
                         setJoinedChannels={setJoinedChannels}
+                        isDarkMode={isDarkMode}
+                        setIsDarkMode={setIsDarkMode}
                     />
                     <Conversation
                         socket={socket}
