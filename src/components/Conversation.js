@@ -152,7 +152,7 @@ const Conversation = ({
                         <div className="flex flex-1 flex-row items-center justify-center space-x-2">
                             <span className="font-bold dark:text-white">{currentChannelId}</span>
                             <button
-                                className="bg-gray-200 px-2 rounded-full hover:bg-gray-300 active:bg-gray-400 opacity-80"
+                                className="bg-gray-200 px-2 rounded-full hover:bg-gray-300 active:bg-gray-400"
                                 onClick={copyToClipboard}
                             >
                                 <i className="fa-regular text-gray-700 fa-copy"></i>

@@ -115,7 +115,7 @@ const NavBar = ({
                         <input
                             type="text"
                             placeholder="Enter Room ID"
-                            className="flex-1 rounded px-2 text-xs dark:bg-zinc-700"
+                            className="flex-1 rounded px-2 text-xs dark:bg-zinc-700 dark:text-white"
                             value={joinChannelInput}
                             onChange={(e) =>
                                 setJoinChannelInput(e.target.value)
@@ -133,7 +133,7 @@ const NavBar = ({
             </div>
 
             {/* third row */}
-            <div className="flex-1 overflow-y-auto max-h-screen">
+            <div className="flex-1 overflow-y-auto max-h-screen bg-white dark:bg-zinc-800">
                 {joinedChannels.map((channel, index) => (
                     <div
                         key={index}
