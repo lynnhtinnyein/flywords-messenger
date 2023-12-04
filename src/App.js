@@ -20,7 +20,7 @@ const App = () => {
 
     //mounted
     useEffect(() => {
-        const newSocket = io("http://localhost:4000");
+        const newSocket = io("https://flywords-messenger.vercel.app:4000");
         setSocket(newSocket);
 
         return () => {
@@ -30,7 +30,7 @@ const App = () => {
 
     //methods
         const createChannel = () => {
-            axios.post('http://localhost:4000', { user: currentUser })
+            axios.post('https://flywords-messenger.vercel.app:4000', { user: currentUser })
             .then( res => {
                 joinChannel(res.data.id)
             })
@@ -47,7 +47,7 @@ const App = () => {
                 }
 
                 //check channel exists or not
-                axios.get('http://localhost:4000', {
+                axios.get('https://flywords-messenger.vercel.app:4000', {
                     params: requestDataToJoin
                 })
                 .then( res => {
