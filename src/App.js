@@ -32,7 +32,7 @@ const App = () => {
 
     //methods
         const createChannel = () => {
-            axios.post('http://localhost:4000', { user: currentUser })
+            axios.post(serverLink, { user: currentUser })
             .then( res => {
                 joinChannel(res.data.id)
             })
@@ -49,7 +49,7 @@ const App = () => {
                 }
 
                 //check channel exists or not
-                axios.get('http://localhost:4000', {
+                axios.get(serverLink, {
                     params: requestDataToJoin
                 })
                 .then( res => {
