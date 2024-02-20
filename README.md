@@ -1,13 +1,13 @@
 # FlyWords - The NoFuss Messenger
 
 <div style="display: flex;">
-    <img src="screenshots/desktop-light.png" alt="Desktop Light" width="50%">
-    <img src="screenshots/desktop-dark.png" alt="Desktop Dark" width="50%">
+    <img src="public/screenshots/desktop-light.png" alt="Desktop Light" width="50%">
+    <img src="public/screenshots/desktop-dark.png" alt="Desktop Dark" width="50%">
 </div>
 
 <div style="display: flex;">
-    <img src="screenshots/mobile-light.png" alt="Mobile Light" width="50%">
-    <img src="screenshots/mobile-dark.png" alt="Mobile Dark" width="50%">
+    <img src="public/screenshots/mobile-light.png" alt="Mobile Light" width="50%">
+    <img src="public/screenshots/mobile-dark.png" alt="Mobile Dark" width="50%">
 </div>
 
 - no setup required
@@ -22,7 +22,7 @@ Project Details
 - no Auth
 - no Database
 - responsive
-- minimalist code
+- minimalist codebase
 
 ## Installation Guide
 
