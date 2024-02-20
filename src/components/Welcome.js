@@ -75,10 +75,10 @@ const Welcome = ({ createChannel, joinChannel, setCurrentUser }) => {
                         </div>
 
                         <ul className="mx-1 space-y-2 mt-5">
-                            <li className="text-gray-500 text-xs">
+                            <li className="text-gray-500 text-xs dark:text-gray-300">
                                 * Just to Display in Chat
                             </li>
-                            <li className="text-gray-500 text-xs">
+                            <li className="text-gray-500 text-xs dark:text-gray-300">
                                 * You Don't Need To Login Or Register
                             </li>
                         </ul>

@@ -2,10 +2,19 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
-const generateUniqueName = require("./src/helper/generateUniqueName");
+const generateUniqueName = require("../src/helper/generateUniqueName");
+const dotenv = require('dotenv');
+
+const environment = process.env.NODE_ENV || 'development';
+const envFile = `.env.${environment}`;
+
+dotenv.config({ path: envFile });
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: process.env.REACT_APP_PUBLIC_URL,
+    methods: ["GET", "POST"],
+}));
 app.use(express.json());
 
 const channelLimit = 50;
@@ -56,7 +65,7 @@ let activeChannels = [];
     const server = http.createServer(app);
     const io = socketIo(server, {
         cors: {
-            origin: "http://localhost:3000",
+            origin: process.env.REACT_APP_PUBLIC_URL,
             methods: ["GET", "POST"],
         },
     });

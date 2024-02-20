@@ -8,6 +8,8 @@ import useDeviceDetect from "./hooks/useDeviceDetect";
 
 const App = () => {
 
+    const serverLink = process.env.REACT_APP_API_URL;
+
     const { isMobile } = useDeviceDetect();
     const [socket, setSocket] = useState(null);
 
@@ -20,7 +22,7 @@ const App = () => {
 
     //mounted
     useEffect(() => {
-        const newSocket = io("http://localhost:4000");
+        const newSocket = io(serverLink);
         setSocket(newSocket);
 
         return () => {
@@ -30,7 +32,7 @@ const App = () => {
 
     //methods
         const createChannel = () => {
-            axios.post('http://localhost:4000', { user: currentUser })
+            axios.post(serverLink, { user: currentUser })
             .then( res => {
                 joinChannel(res.data.id)
             })
@@ -47,7 +49,7 @@ const App = () => {
                 }
 
                 //check channel exists or not
-                axios.get('http://localhost:4000', {
+                axios.get(serverLink, {
                     params: requestDataToJoin
                 })
                 .then( res => {
