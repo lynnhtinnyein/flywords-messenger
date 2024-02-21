@@ -1,4 +1,7 @@
-# FlyWords - The NoFuss Messenger
+# FlyWords - The Real Instant Messenger
+No Muss, No Fuss
+
+[https://flywords-messenger.vercel.app](https://flywords-messenger.vercel.app)
 
 <div style="display: flex;">
     <img src="public/screenshots/desktop-light.png" alt="Desktop Light" width="50%">
@@ -21,6 +24,7 @@ Project Details
 - End to End Chat
 - no Auth
 - no Database
+- never store user data
 - responsive
 - minimalist codebase
 
@@ -28,5 +32,5 @@ Project Details
 
 ### `clone repo`
 ### `npm install`
-### `yarn server`
-### `yarn start`
+### `npm run server`
+### `npm run start`

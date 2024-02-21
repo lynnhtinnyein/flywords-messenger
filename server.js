@@ -2,7 +2,7 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
-const generateUniqueName = require("../src/helper/generateUniqueName");
+const generateUniqueName = require("./src/helper/generateUniqueName");
 const dotenv = require('dotenv');
 
 const environment = process.env.NODE_ENV || 'development';
