@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 
+server-deploy.js
+
 # testing
 /coverage
 

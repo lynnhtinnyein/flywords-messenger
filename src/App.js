@@ -9,8 +9,6 @@ import useDeviceDetect from "./hooks/useDeviceDetect";
 const App = () => {
     const serverLink = process.env.REACT_APP_API_URL;
 
-    console.log(serverLink)
-
     const { isMobile } = useDeviceDetect();
     const [socket, setSocket] = useState(null);
 
